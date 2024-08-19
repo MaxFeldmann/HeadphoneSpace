@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">HeadphoneSpace</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Headphone Space</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_wishlist">Wishlist</string>
+    <string name="menu_popular">Popular</string>
+    <string name="searchbar_hint">Search something here</string>
+    <string name="popular_picks_string">Popular picks ➞</string>
+    <string name="profile_wishlist">Wishlist ⬈</string>
+    <string name="profile_string_review">Your reviews</string>
+    <string name="user_name">User name</string>
+    <string name="add_review">Add review</string>
+    <string name="menu_profile">Profile</string>
+    <string name="headphone_name">Headphone name</string>
+    <string name="headphone_string">Headphone</string>
+</resources>

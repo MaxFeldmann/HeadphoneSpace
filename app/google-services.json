@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "47483275551",
+    "firebase_url": "https://headphonespace-103d9-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "headphonespace-103d9",
+    "storage_bucket": "headphonespace-103d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47483275551:android:87a3af3020eb0f4f85482a",
+        "android_client_info": {
+          "package_name": "com.example.headphonespace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "47483275551-m8ue50s44jog9d8v3hruu1vqkbbkfa22.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.headphonespace",
+            "certificate_hash": "50aaa64d19aa30ca24f5f979e3521935cc423b67"
+          }
+        },
+        {
+          "client_id": "47483275551-95lag9jhcjl6ljnitch1qsj4cag8mj18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1BB3J5euix-Z_AF5OBRSTCBZl4A1ELF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "47483275551-95lag9jhcjl6ljnitch1qsj4cag8mj18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

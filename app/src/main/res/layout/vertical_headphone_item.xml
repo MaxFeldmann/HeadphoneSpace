@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.cardview.widget.CardView
+        android:id="@+id/headphone_vertical_CARD_IMG"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/poster_height"
+        android:elevation="@dimen/poster_elevation"
+        app:cardElevation="@dimen/poster_elevation"
+        app:cardCornerRadius="@dimen/poster_corner_radius"
+        android:layout_marginVertical="@dimen/poster_vertical_margin"
+        android:layout_marginStart="@dimen/poster_vertical_margin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/headphone_vertical_CARD_data">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/headphone_vertical_IMG_poster"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            tools:src="@drawable/splash_gradient_background"
+            />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/headphone_vertical_CARD_data"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/data_end_margin"
+        android:elevation="@dimen/data_elevation"
+        app:cardCornerRadius="@dimen/poster_corner_radius"
+        app:cardElevation="@dimen/data_elevation"
+        app:layout_constraintBottom_toBottomOf="@id/headphone_vertical_CARD_IMG"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headphone_vertical_CARD_IMG">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/data_end_margin"
+            android:layout_marginStart="5dp">
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/headphone_vertical_IMG_favorite"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="@dimen/wishlist_margin"
+                android:layout_marginEnd="@dimen/wishlist_margin"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/empty_wishlist" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/headphone_vertical_LBL_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_toStartOf="@id/headphone_vertical_IMG_favorite"
+                android:layout_marginStart="@dimen/data_end_margin"
+                android:layout_marginTop="@dimen/data_end_margin"
+                android:layout_marginEnd="@dimen/data_end_margin"
+                android:maxLines="1"
+                android:minLines="1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Headphone Name" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/headphone_vertical_LBL_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/headphone_vertical_LBL_name"
+                android:layout_alignStart="@id/headphone_vertical_LBL_name"
+                android:layout_marginEnd="@dimen/data_end_margin"
+                android:maxLines="1"
+                android:minLines="1"
+                android:textSize="@dimen/data_text_size"
+                tools:text="TWS, Noise canceling, Neutral" />
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/headphone_vertical_RTNG_rating"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/headphone_vertical_LBL_info"
+                android:layout_centerHorizontal="true"
+                android:layout_marginVertical="@dimen/data_end_margin"
+                android:progressTint="@color/yellow_400"
+                android:secondaryProgressTint="@color/orange_400"
+                tools:rating="3.7"
+                android:stepSize="0.5"
+                />
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
