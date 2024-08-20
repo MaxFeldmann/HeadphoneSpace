@@ -10,7 +10,6 @@ import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.headphonespace.Models.Headphone;
 import com.example.headphonespace.Models.Review;
 import com.example.headphonespace.R;
 import com.example.headphonespace.Utilities.ImageLoader;
@@ -18,7 +17,6 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
     private final ArrayList<Review> reviewList;
@@ -39,14 +37,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     public void onBindViewHolder(@NonNull ReviewAdapter.ReviewViewHolder holder, int position) {
         Review review = reviewList.get(position);
 
-        if (review.getUser() != null) {
-            ImageLoader.getInstance().load(String.valueOf(Objects.requireNonNull(review.getUser()).getPhotoUrl()), holder.user_IMG_picture);
-            holder.review_LBL_username.setText(Objects.requireNonNull(review.getUser()).getProviderId());
-        }
-        else {
-            holder.review_LBL_username.setText("Anonymous");
+        if (review.getUserUri() != null)
+            ImageLoader.getInstance().load(String.valueOf(review.getUserUri()), holder.user_IMG_picture);
+        else
             holder.user_IMG_picture.setImageResource(R.drawable.unavailable_photo);
-        }
+        if (review.getUserName() != null)
+            holder.review_LBL_username.setText(review.getUserName());
+        else
+            holder.review_LBL_username.setText(R.string.anonymous);
         holder.review_LBL_contents.setText(review.getContents());
         holder.review_LBL_title.setText(review.getTitle());
         holder.review_LBL_headphone_name.setText(review.getHeadphoneName());

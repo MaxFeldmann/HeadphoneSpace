@@ -1,22 +1,12 @@
 package com.example.headphonespace;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
 import android.view.Menu;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 
-import com.example.headphonespace.Fragments.HeadphoneFragment;
-import com.example.headphonespace.Models.Headphone;
-import com.example.headphonespace.Models.HeadphoneList;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.headphonespace.Utilities.ImageLoader;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -38,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        ImageLoader.initImageLoader(this);
 
         setSupportActionBar(binding.appBarMain.toolbar);
         DrawerLayout drawer = binding.drawerLayout;

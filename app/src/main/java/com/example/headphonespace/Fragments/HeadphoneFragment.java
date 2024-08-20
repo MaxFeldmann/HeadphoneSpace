@@ -1,5 +1,7 @@
 package com.example.headphonespace.Fragments;
 
+import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,7 +19,6 @@ import android.widget.Toast;
 
 import com.example.headphonespace.Adapters.ReviewAdapter;
 import com.example.headphonespace.Models.Headphone;
-import com.example.headphonespace.Models.HeadphoneList;
 import com.example.headphonespace.Models.Review;
 import com.example.headphonespace.R;
 import com.google.android.material.button.MaterialButton;
@@ -64,6 +65,7 @@ public class HeadphoneFragment extends Fragment {
         return v;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void initViews() {
         full_LBL_name.setText(headphone.getName());
         headphone_IMG_poster.setImageResource(headphone.getHeadphone_IMG());
@@ -76,10 +78,16 @@ public class HeadphoneFragment extends Fragment {
 
             if (!title.isEmpty() && !contents.isEmpty() && review_RTNG_rating.getRating() > 0)
             {
-                Review review = new Review(FirebaseAuth.getInstance().getCurrentUser(), contents, title,headphone.getName(), review_RTNG_rating.getRating());
+                Review review;
+                Uri userUri = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl();
+                if (userUri != null)
+                    review = new Review(String.valueOf(userUri), FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), contents, title,headphone.getName(), review_RTNG_rating.getRating());
+                else
+                    review = new Review(null, FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), contents, title,headphone.getName(), review_RTNG_rating.getRating());
                 headphone.addReview(String.valueOf(headphone.getReviewList().size()), review);
                 saveHeadphoneDatabase(headphone, review);
                 saveReviewDatabase(review);
+                Objects.requireNonNull(main_LST_reviews.getAdapter()).notifyDataSetChanged();
                 Toast.makeText(this.getContext(), "Review sent!", Toast.LENGTH_SHORT).show();
                 review_TXT_title.setText("");
                 review_TXT_body.setText("");
@@ -88,7 +96,31 @@ public class HeadphoneFragment extends Fragment {
             else
                 Toast.makeText(this.getContext(), "Please fill all the fields!", Toast.LENGTH_SHORT).show();
         });
+        getUpdatedWishlist();
         getUpdatedReviews();
+    }
+
+    private void getUpdatedWishlist() {
+        if (FirebaseAuth.getInstance().getUid() != null && headphone != null) {
+            DatabaseReference userWishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(FirebaseAuth.getInstance().getUid());
+            userWishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot wishlistSnapshot : snapshot.getChildren()) {
+                        Headphone headphoneWishlist = wishlistSnapshot.getValue(Headphone.class);
+                        if (headphoneWishlist != null && headphoneWishlist.getName().equals(headphone.getName())) {
+                            headphone.setFavorite(true);
+                            break;
+                        }
+                    }
+                    setWishList(headphone);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            });
+        }
     }
 
     private void saveReviewDatabase(Review userReview) {
@@ -106,9 +138,15 @@ public class HeadphoneFragment extends Fragment {
                     Headphone headphoneFromSnap = headphoneSnapshot.getValue(Headphone.class);
                     if (headphoneFromSnap != null && headphoneFromSnap.getName().equals(headphone.getName())){
                         headphone = headphoneFromSnap;
+                        int i = 0;
+                        for (DataSnapshot reviewsSnap : headphoneSnapshot.child("reviewList").getChildren()){
+                            Review review = reviewsSnap.getValue(Review.class);
+                            if (review != null)
+                                headphone.addReview(String.valueOf(i++), review);
+                        }
                     }
                 }
-                updateWishlist();
+                setAdapter(headphone);
             }
 
             @Override
@@ -118,28 +156,7 @@ public class HeadphoneFragment extends Fragment {
         });
     }
 
-    private void updateWishlist() {
-        if (FirebaseAuth.getInstance().getUid() != null && headphone != null) {
-            DatabaseReference userWishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(FirebaseAuth.getInstance().getUid());
-            userWishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for (DataSnapshot wishlistSnapshot : snapshot.getChildren()) {
-                        Headphone headphoneWishlist = wishlistSnapshot.getValue(Headphone.class);
-                        if (headphoneWishlist != null && headphoneWishlist.getName().equals(headphone.getName()))
-                            headphone.setFavorite(true);
-                    }
-                    setAdapter(headphone);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                }
-            });
-        }
-    }
-
-    private void setAdapter(Headphone headphone) {
+    private void setWishList(Headphone headphone) {
         if (headphone.isFavorite())
             headphone_frag_IMG_favorite.setImageResource(R.drawable.full_wishlist);
         else
@@ -153,6 +170,9 @@ public class HeadphoneFragment extends Fragment {
             else
                 headphone_frag_IMG_favorite.setImageResource(R.drawable.empty_wishlist);
         });
+    }
+
+    private void setAdapter(Headphone headphone) {
 
         ReviewAdapter reviewAdapter = new ReviewAdapter(new ArrayList<>(headphone.getReviewList().values()));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -163,7 +183,7 @@ public class HeadphoneFragment extends Fragment {
 
     private void saveUpdatedWishlist(Headphone headphone, boolean favorite) {
         DatabaseReference wishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        wishlistRef.addValueEventListener(new ValueEventListener() {
+        wishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 HashMap<String, Headphone> wishlist = new HashMap<>();
@@ -191,22 +211,41 @@ public class HeadphoneFragment extends Fragment {
     }
 
     public void saveHeadphoneDatabase(Headphone headphoneReview, Review userReview) {
-        DatabaseReference headphoneRef = FirebaseDatabase.getInstance().getReference("HeadphoneList");
-        headphoneRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference headphonesRef = FirebaseDatabase.getInstance().getReference("HeadphoneList");
+        headphonesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                HeadphoneList headphoneList = new HeadphoneList();
-                int i = 0;
                 for (DataSnapshot headphoneSnapshot : snapshot.getChildren())
                 {
                     Headphone headphone = headphoneSnapshot.getValue(Headphone.class);
                     if (headphone != null) {
-                        if (headphone.getName().equals(headphoneReview.getName()))
-                            headphone.addReview(String.valueOf(headphone.getReviewList().size()), userReview);
-                        headphoneList.addHeadphone(String.valueOf(i++), headphone);
+                        if (headphone.getName().equals(headphoneReview.getName())){
+                            DatabaseReference headphoneRef = headphoneSnapshot.getRef().child("reviewList");
+                            headphoneRef.push().setValue(userReview);
+                        }
                     }
                 }
-                headphoneRef.setValue(headphoneList.getHeadphones());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        DatabaseReference featuredHeadphoneRef = FirebaseDatabase.getInstance().getReference("FeaturedHeadphoneList");
+        featuredHeadphoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot headphoneSnapshot : snapshot.getChildren())
+                {
+                    Headphone headphone = headphoneSnapshot.getValue(Headphone.class);
+                    if (headphone != null) {
+                        if (headphone.getName().equals(headphoneReview.getName())){
+                            DatabaseReference headphoneRef = headphoneSnapshot.getRef().child("reviewList");
+                            headphoneRef.push().setValue(userReview);
+                        }
+                    }
+                }
             }
 
             @Override

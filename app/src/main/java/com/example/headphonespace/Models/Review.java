@@ -1,12 +1,11 @@
 package com.example.headphonespace.Models;
 
-import com.google.firebase.auth.FirebaseUser;
-
 public class Review {
     public static final int MAX_LINES_COLLAPSED = 3;
     public static final int MIN_LINES_COLLAPSED = 1;
 
-    FirebaseUser user = null;
+    String userUri = null;
+    String userName = null;
     String contents;
     String title;
     String headphoneName;
@@ -52,9 +51,10 @@ public class Review {
         return this;
     }
 
-    public Review(FirebaseUser User, String contents, String title,String headphoneName, float rating)
+    public Review(String userUri, String userName, String contents, String title,String headphoneName, float rating)
     {
-        this.user = user;
+        this.userUri = userUri;
+        this.userName = userName;
         this.contents = contents;
         this.title = title;
         this.headphoneName = headphoneName;
@@ -70,12 +70,21 @@ public class Review {
         return this;
     }
 
-    public FirebaseUser getUser() {
-        return user;
+    public String getUserUri() {
+        return userUri;
     }
 
-    public Review setUser(FirebaseUser user) {
-        this.user = user;
+    public Review setUserUri(String userUri) {
+        this.userUri = userUri;
+        return this;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public Review setUserName(String userName) {
+        this.userName = userName;
         return this;
     }
 }

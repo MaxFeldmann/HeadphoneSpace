@@ -12,9 +12,11 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.headphonespace.Adapters.ReviewAdapter;
@@ -36,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
-    private AppCompatImageView profile_IMG_image;
+    private ImageView profile_IMG_image;
     private TextView profile_LBL_name;
     private TextView profile_LBL_email;
     private TextView profile_LBL_phone;
@@ -68,7 +70,7 @@ public class ProfileFragment extends Fragment {
         if (Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null)
             profile_IMG_image.setImageResource(R.drawable.unavailable_photo);
         else
-            ImageLoader.getInstance().load(String.valueOf(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl()), profile_IMG_image);
+            ImageLoader.getInstance().load(String.valueOf(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()), profile_IMG_image);
         if (FirebaseAuth.getInstance().getCurrentUser().getDisplayName() != null)
             profile_LBL_name.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
         else
