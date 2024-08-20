@@ -55,8 +55,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViews() {
-        loadHeadphoneList();
         text_home.setOnClickListener(v -> moveToPopular());
+        loadHeadphoneList();
     }
 
     private void moveToPopular() {
@@ -76,7 +76,7 @@ public class HomeFragment extends Fragment {
                     Headphone foundHeadphone = headphoneSnapshot.getValue(Headphone.class);
                     if (favorite && foundHeadphone != null && foundHeadphone.getName().equals(headphone.getName()))
                         found = true;
-                    else
+                    else if (foundHeadphone != null && !foundHeadphone.getName().equals(headphone.getName()))
                         wishlist.put(headphoneSnapshot.getKey(), foundHeadphone);
                 }
                 if (favorite && !found){
@@ -259,16 +259,6 @@ public class HomeFragment extends Fragment {
                 navController.navigate(R.id.nav_headphone, args);
             }
         });
-    }
-
-    public void saveHeadphoneList() {
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("HeadphoneList");
-
-        myRef.setValue(headphoneList.getHeadphones());
-
-        DatabaseReference myRefFeatured = FirebaseDatabase.getInstance().getReference("FeaturedHeadphoneList");
-
-        myRefFeatured.setValue(featuredHeadphoneList.getHeadphones());
     }
 
     @Override

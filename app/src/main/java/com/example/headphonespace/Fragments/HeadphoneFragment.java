@@ -47,7 +47,6 @@ public class HeadphoneFragment extends Fragment {
     private ShapeableImageView headphone_frag_IMG_favorite;
 
     private Headphone headphone;
-   /* private HeadphoneList headphoneList;*/
 
     public HeadphoneFragment() {}
 
@@ -79,7 +78,7 @@ public class HeadphoneFragment extends Fragment {
             {
                 Review review = new Review(FirebaseAuth.getInstance().getCurrentUser(), contents, title,headphone.getName(), review_RTNG_rating.getRating());
                 headphone.addReview(String.valueOf(headphone.getReviewList().size()), review);
-                saveHeadphoneDatabase();
+                saveHeadphoneDatabase(headphone, review);
                 saveReviewDatabase(review);
                 Toast.makeText(this.getContext(), "Review sent!", Toast.LENGTH_SHORT).show();
                 review_TXT_title.setText("");
@@ -164,7 +163,7 @@ public class HeadphoneFragment extends Fragment {
 
     private void saveUpdatedWishlist(Headphone headphone, boolean favorite) {
         DatabaseReference wishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        wishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        wishlistRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 HashMap<String, Headphone> wishlist = new HashMap<>();
@@ -173,7 +172,7 @@ public class HeadphoneFragment extends Fragment {
                     Headphone foundHeadphone = headphoneSnapshot.getValue(Headphone.class);
                     if (favorite && foundHeadphone != null && foundHeadphone.getName().equals(headphone.getName()))
                         found = true;
-                    else
+                    else if (foundHeadphone != null && !foundHeadphone.getName().equals(headphone.getName()))
                         wishlist.put(headphoneSnapshot.getKey(), foundHeadphone);
                 }
                 if (favorite && !found){
@@ -191,9 +190,9 @@ public class HeadphoneFragment extends Fragment {
         });
     }
 
-    public void saveHeadphoneDatabase() {
+    public void saveHeadphoneDatabase(Headphone headphoneReview, Review userReview) {
         DatabaseReference headphoneRef = FirebaseDatabase.getInstance().getReference("HeadphoneList");
-        headphoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        headphoneRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 HeadphoneList headphoneList = new HeadphoneList();
@@ -201,14 +200,10 @@ public class HeadphoneFragment extends Fragment {
                 for (DataSnapshot headphoneSnapshot : snapshot.getChildren())
                 {
                     Headphone headphone = headphoneSnapshot.getValue(Headphone.class);
-                    if (headphone != null)
+                    if (headphone != null) {
+                        if (headphone.getName().equals(headphoneReview.getName()))
+                            headphone.addReview(String.valueOf(headphone.getReviewList().size()), userReview);
                         headphoneList.addHeadphone(String.valueOf(i++), headphone);
-                }
-                for (i = 0; i < headphoneList.getHeadphones().size(); i++)
-                {
-                    if (Objects.requireNonNull(headphoneList.getHeadphones().get(String.valueOf(i))).getName().equals(headphone.getName())) {
-                        headphoneList.getHeadphones().replace(String.valueOf(i), headphone);
-                        break;
                     }
                 }
                 headphoneRef.setValue(headphoneList.getHeadphones());

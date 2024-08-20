@@ -67,7 +67,7 @@ public class SearchFragment extends Fragment {
                     Headphone foundHeadphone = headphoneSnapshot.getValue(Headphone.class);
                     if (favorite && foundHeadphone != null && headphone.getName().equals(foundHeadphone.getName()))
                         found = true;
-                    else
+                    else if (foundHeadphone != null && !foundHeadphone.getName().equals(headphone.getName()))
                         wishlist.put(headphoneSnapshot.getKey(), foundHeadphone);
                 }
                 if (favorite && !found){
