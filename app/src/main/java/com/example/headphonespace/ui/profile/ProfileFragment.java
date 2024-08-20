@@ -1,5 +1,6 @@
 package com.example.headphonespace.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,10 +18,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.headphonespace.Adapters.ReviewAdapter;
+import com.example.headphonespace.LoginActivity;
 import com.example.headphonespace.Models.Review;
 import com.example.headphonespace.R;
 import com.example.headphonespace.Utilities.ImageLoader;
 import com.example.headphonespace.databinding.FragmentProfileBinding;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,6 +44,7 @@ public class ProfileFragment extends Fragment {
     private RecyclerView profile_LST_review;
     private FragmentProfileBinding binding;
     private ArrayList<Review> reviewList;
+    private MaterialButton profile_BTN_out;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,10 +71,17 @@ public class ProfileFragment extends Fragment {
             ImageLoader.getInstance().load(String.valueOf(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl()), profile_IMG_image);
         if (FirebaseAuth.getInstance().getCurrentUser().getDisplayName() != null)
             profile_LBL_name.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
+        else
+            profile_LBL_name.setText(R.string.name_unavailable);
         if (FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
             profile_LBL_email.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getEmail()));
+        else
+            profile_LBL_email.setText(R.string.email_unavailable);
         if (FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() != null)
             profile_LBL_phone.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber()));
+        else
+            profile_LBL_phone.setText(R.string.phone_unavailable);
+        profile_BTN_out.setOnClickListener(v -> signOut());
         profile_LBL_wishlist.setOnClickListener(v -> moveToWishlist());
     }
 
@@ -86,6 +98,7 @@ public class ProfileFragment extends Fragment {
         profile_LBL_phone = root.findViewById(R.id.profile_LBL_phone);
         profile_LBL_wishlist = root.findViewById(R.id.profile_LBL_wishlist);
         profile_LST_review = root.findViewById(R.id.profile_LST_review);
+        profile_BTN_out = root.findViewById(R.id.profile_BTN_out);
     }
 
     private void loadReviewList()
@@ -117,6 +130,15 @@ public class ProfileFragment extends Fragment {
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         profile_LST_review.setLayoutManager(linearLayoutManager);
         profile_LST_review.setAdapter(reviewAdapter);
+    }
+
+    private void signOut() {
+        AuthUI.getInstance()
+                .signOut(requireContext())
+                .addOnCompleteListener(task -> {
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                    requireActivity().finish();
+                });
     }
 
     @Override

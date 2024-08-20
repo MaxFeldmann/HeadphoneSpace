@@ -23,4 +23,11 @@
     <string name="menu_profile">Profile</string>
     <string name="headphone_name">Headphone name</string>
     <string name="headphone_string">Headphone</string>
+    <string name="sign_out">Sign out</string>
+    <string name="phone">Phone</string>
+    <string name="e_mail">E-Mail</string>
+    <string name="name">Name</string>
+    <string name="name_unavailable">Name unavailable</string>
+    <string name="email_unavailable">Email unavailable</string>
+    <string name="phone_unavailable">Phone unavailable</string>
 </resources>

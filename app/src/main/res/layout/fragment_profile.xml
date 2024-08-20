@@ -23,7 +23,7 @@
             android:id="@+id/profile_LBL_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name"
+            android:text="@string/name"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/default_margin" />
 
@@ -31,7 +31,7 @@
             android:id="@+id/profile_LBL_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="E-Mail"
+            android:text="@string/e_mail"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/default_margin" />
 
@@ -39,7 +39,7 @@
             android:id="@+id/profile_LBL_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phone"
+            android:text="@string/phone"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/default_margin" />
 
@@ -50,6 +50,15 @@
             android:text="@string/profile_wishlist"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_BTN_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/sign_out"
+            android:textSize="11sp"
+            />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
     <TextView
