@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
@@ -70,9 +70,7 @@ public class ProfileFragment extends Fragment {
             profile_LBL_email.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getEmail()));
         if (FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() != null)
             profile_LBL_phone.setText(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber()));
-        profile_LBL_wishlist.setOnClickListener(v -> {
-            moveToWishlist();
-        });
+        profile_LBL_wishlist.setOnClickListener(v -> moveToWishlist());
     }
 
     private void moveToWishlist() {
@@ -92,23 +90,18 @@ public class ProfileFragment extends Fragment {
 
     private void loadReviewList()
     {
-        DatabaseReference reviewRef = FirebaseDatabase.getInstance().getReference("ReviewList").child(String.valueOf(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()));
+        DatabaseReference reviewRef = FirebaseDatabase.getInstance().getReference("ReviewList").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         reviewRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int i = 0;
-                reviewList = new ArrayList<Review>();
+                reviewList = new ArrayList<>();
                 for (DataSnapshot reviewSnapshot : snapshot.getChildren())
                 {
                     Review review = reviewSnapshot.getValue(Review.class);
                     if (review != null)
                         reviewList.add(review);
                 }
-                ReviewAdapter reviewAdapter = new ReviewAdapter(reviewList);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-                linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-                profile_LST_review.setLayoutManager(linearLayoutManager);
-                profile_LST_review.setAdapter(reviewAdapter);
+                setAdapter(reviewList);
             }
 
             @Override
@@ -116,6 +109,14 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+    }
+
+    private void setAdapter(ArrayList<Review> reviewList) {
+        ReviewAdapter reviewAdapter = new ReviewAdapter(reviewList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        profile_LST_review.setLayoutManager(linearLayoutManager);
+        profile_LST_review.setAdapter(reviewAdapter);
     }
 
     @Override

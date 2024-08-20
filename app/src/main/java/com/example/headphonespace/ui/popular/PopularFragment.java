@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 
 import com.example.headphonespace.Adapters.HeadphoneDefaultAdapter;
 import com.example.headphonespace.Interfaces.HeadphoneCallback;
-import com.example.headphonespace.MainActivity;
 import com.example.headphonespace.Models.Headphone;
 import com.example.headphonespace.Models.HeadphoneList;
 import com.example.headphonespace.R;
@@ -28,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 
@@ -58,17 +58,24 @@ public class PopularFragment extends Fragment {
 
     private void saveUpdatedWishlist(Headphone headphone, boolean favorite) {
         DatabaseReference wishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        HeadphoneList wishlist = new HeadphoneList();
-        final int[] position = new int[1];
-        wishlistRef.addValueEventListener(new ValueEventListener() {
+        wishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int i = 0;
+                HashMap<String, Headphone> wishlist = new HashMap<>();
+                boolean found = false;
                 for (DataSnapshot headphoneSnapshot : snapshot.getChildren()) {
-                    if (favorite && headphoneSnapshot.getValue(Headphone.class).getName().equals(headphone.getName()))
-                        position[0] = i;
-                    wishlist.addHeadphone(String.valueOf(i++), headphoneSnapshot.getValue(Headphone.class));
+                    Headphone foundHeadphone = headphoneSnapshot.getValue(Headphone.class);
+                    if (favorite && foundHeadphone != null && foundHeadphone.getName().equals(headphone.getName()))
+                        found = true;
+                    else
+                        wishlist.put(headphoneSnapshot.getKey(), foundHeadphone);
                 }
+                if (favorite && !found){
+                    String newKey = wishlistRef.push().getKey();
+                    if (newKey != null)
+                        wishlist.put(newKey, headphone);
+                }
+                wishlistRef.setValue(wishlist);
             }
 
             @Override
@@ -76,11 +83,6 @@ public class PopularFragment extends Fragment {
 
             }
         });
-        if (favorite)
-            wishlist.addHeadphone(String.valueOf(wishlist.getHeadphones().size()), headphone);
-        else
-            wishlist.getHeadphones().remove(String.valueOf(position[0]));
-        wishlistRef.setValue(wishlist.getHeadphones());
     }
 
     private void loadPopularHeadphones() {
@@ -88,41 +90,72 @@ public class PopularFragment extends Fragment {
         headphoneRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int i = 0;
                 headphoneList = new HeadphoneList();
+                int i = 0;
                 for (DataSnapshot headphoneSnapshot : snapshot.getChildren())
                 {
                     Headphone headphone = headphoneSnapshot.getValue(Headphone.class);
-                    if (headphone != null && headphone.getRating() > 4.0f)
+                    if (headphone != null)
                         headphoneList.addHeadphone(String.valueOf(i++), headphone);
                 }
-                HeadphoneDefaultAdapter headphoneDefaultAdapter = new HeadphoneDefaultAdapter(headphoneList);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-                linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-                popular_LST_headphones.setLayoutManager(linearLayoutManager);
-                popular_LST_headphones.setAdapter(headphoneDefaultAdapter);
-                headphoneDefaultAdapter.setHeadphoneCallback(new HeadphoneCallback() {
-                    @Override
-                    public void wishListHeadphone(Headphone headphone, int position) {
-                        headphone.setFavorite(!headphone.isFavorite());
-                        headphoneDefaultAdapter.notifyItemChanged(position);
-                        saveUpdatedWishlist(headphone, headphone.isFavorite());
-                    }
-
-                    @Override
-                    public void moveToHeadphone(Headphone headphone, int position) {
-                        FragmentActivity activity = (FragmentActivity) binding.getRoot().getContext();
-                        NavController navController = Navigation.findNavController(activity, R.id.nav_host_fragment_content_main);
-                        Bundle args = new Bundle();
-                        args.putSerializable("headphone", headphone);
-                        navController.navigate(R.id.nav_headphone, args);
-                    }
-                });
+                updateWishlist();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+    }
+
+    private void updateWishlist() {
+        if (FirebaseAuth.getInstance().getUid() != null && headphoneList != null) {
+            DatabaseReference userWishlistRef = FirebaseDatabase.getInstance().getReference("Wishlist").child(FirebaseAuth.getInstance().getUid());
+            userWishlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot wishlistSnapshot : snapshot.getChildren()) {
+                        Headphone headphone = wishlistSnapshot.getValue(Headphone.class);
+                        if (headphone != null) {
+                            for (Headphone headphoneFromList : headphoneList.getHeadphones().values()) {
+                                if (headphone.getName().equals(headphoneFromList.getName())) {
+                                    headphoneFromList.setFavorite(true);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    setAdapter(headphoneList);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            });
+        }
+    }
+
+    private void setAdapter(HeadphoneList headphoneList) {
+        HeadphoneDefaultAdapter headphoneDefaultAdapter = new HeadphoneDefaultAdapter(headphoneList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        popular_LST_headphones.setLayoutManager(linearLayoutManager);
+        popular_LST_headphones.setAdapter(headphoneDefaultAdapter);
+        headphoneDefaultAdapter.setHeadphoneCallback(new HeadphoneCallback() {
+            @Override
+            public void wishListHeadphone(Headphone headphone, int position) {
+                headphone.setFavorite(!headphone.isFavorite());
+                headphoneDefaultAdapter.notifyItemChanged(position);
+                saveUpdatedWishlist(headphone, headphone.isFavorite());
+            }
+
+            @Override
+            public void moveToHeadphone(Headphone headphone, int position) {
+                FragmentActivity activity = (FragmentActivity) binding.getRoot().getContext();
+                NavController navController = Navigation.findNavController(activity, R.id.nav_host_fragment_content_main);
+                Bundle args = new Bundle();
+                args.putSerializable("headphone", headphone);
+                navController.navigate(R.id.nav_headphone, args);
             }
         });
     }
